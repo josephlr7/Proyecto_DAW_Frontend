@@ -19,7 +19,9 @@ const soloAdmin = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   if (auth.tieneRol('ROLE_ADMIN')) return true;
-  return router.createUrlTree(['/dashboard']);
+  if (auth.tieneRol('ROLE_PERSONAL')) return router.createUrlTree(['/dashboard']);
+  if (auth.tieneRol('ROLE_INVESTIGADOR')) return router.createUrlTree(['/uso-equipos']);
+  return router.createUrlTree(['/login']);
 };
 
 // Guard: ADMIN o PERSONAL
@@ -27,7 +29,8 @@ const adminOPersonal = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
   if (auth.tieneRol('ROLE_ADMIN') || auth.tieneRol('ROLE_PERSONAL')) return true;
-  return router.createUrlTree(['/dashboard']);
+  if (auth.tieneRol('ROLE_INVESTIGADOR')) return router.createUrlTree(['/uso-equipos']);
+  return router.createUrlTree(['/login']);
 };
 
 // Guard: autenticado
@@ -42,7 +45,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: Dashboard,
-    canActivate: [autenticado]
+    canActivate: [adminOPersonal]
   },
   {
     path: 'login',

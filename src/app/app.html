@@ -26,15 +26,17 @@
       <nav class="sidebar-menu flex-grow-1 p-3 overflow-y-auto">
         <ul class="nav flex-column gap-2">
 
-          <!-- Dashboard: todos los roles -->
-          <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
-               routerLink="/dashboard" 
-               routerLinkActive="active"
-               (click)="cerrarSidebar()">
-              <span>📊</span> Dashboard
-            </a>
-          </li>
+          <!-- Dashboard: solo ADMIN y PERSONAL -->
+          @if (authService.tieneRol('ROLE_ADMIN') || authService.tieneRol('ROLE_PERSONAL')) {
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+                 routerLink="/dashboard" 
+                 routerLinkActive="active"
+                 (click)="cerrarSidebar()">
+                <span>📊</span> Dashboard
+              </a>
+            </li>
+          }
 
           <!-- Sección Académica: ADMIN y PERSONAL -->
           @if (authService.tieneRol('ROLE_ADMIN') || authService.tieneRol('ROLE_PERSONAL')) {

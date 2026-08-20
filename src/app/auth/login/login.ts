@@ -32,10 +32,14 @@ export class Login {
 
           if (
             this.authService.tieneRol('ROLE_ADMIN') ||
-            this.authService.tieneRol('ROLE_PERSONAL') ||
-            this.authService.tieneRol('ROLE_INVESTIGADOR')
+            this.authService.tieneRol('ROLE_PERSONAL')
           ) {
             void this.router.navigate(['/dashboard']);
+            return;
+          }
+
+          if (this.authService.tieneRol('ROLE_INVESTIGADOR')) {
+            void this.router.navigate(['/uso-equipos']);
             return;
           }
 
