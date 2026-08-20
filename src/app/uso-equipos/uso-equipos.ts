@@ -61,13 +61,14 @@ export class UsoEquipos implements OnInit {
     });
   }
 
-  abrirFormulario() {
+  abrirFormularioNuevo() {
     this.limpiarFormulario();
     this.usoEditandoId = null;
+    this.guardando = false;
     this.mostrarFormulario = true;
   }
 
-  abrirFormularioEdicion(registro: UsoEquipamientoResponseDTO) {
+  abrirFormularioEditar(registro: UsoEquipamientoResponseDTO) {
     this.uso = {
       equipamientoId: registro.equipamientoId,
       nombreInvestigador: registro.nombreInvestigador || '',
@@ -79,26 +80,33 @@ export class UsoEquipos implements OnInit {
       observacion: registro.observacion
     };
     this.usoEditandoId = registro.id;
+    this.guardando = false;
     this.mostrarFormulario = true;
   }
 
   cerrarFormulario() {
     this.mostrarFormulario = false;
+    this.guardando = false;
   }
 
   guardarUso() {
+    if (this.guardando) return;
     this.mensajeExito = null;
     this.mensajeError = null;
+    this.guardando = true;
+    this.cdr.detectChanges();
     
     if (this.usoEditandoId) {
       this.usoService.editarUsoEquipamiento(this.usoEditandoId, this.uso).subscribe({
         next: () => {
+          this.guardando = false;
           this.mensajeExito = 'El uso del equipo fue actualizado exitosamente.';
           this.cerrarFormulario();
           this.cargarUsos();
           this.cdr.detectChanges();
         },
         error: (err) => {
+          this.guardando = false;
           console.error(err);
           this.mensajeError = err.error?.message || 'Error al actualizar el registro.';
           this.cdr.detectChanges();
@@ -107,12 +115,14 @@ export class UsoEquipos implements OnInit {
     } else {
       this.usoService.registrarUsoEquipamiento(this.uso).subscribe({
         next: () => {
+          this.guardando = false;
           this.mensajeExito = 'El uso del equipo fue registrado exitosamente.';
           this.cerrarFormulario();
           this.cargarUsos();
           this.cdr.detectChanges();
         },
         error: (err) => {
+          this.guardando = false;
           console.error(err);
           this.mensajeError = err.error?.message || 'Ocurrió un error al registrar el uso.';
           this.cdr.detectChanges();

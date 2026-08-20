@@ -215,9 +215,12 @@
 
         <div class="card-footer d-flex justify-content-end gap-2 py-3" style="background-color: #112233; border-top: 1px solid #2d4a6a;">
           <button class="btn btn-outline-secondary px-4 fw-medium"
+                  [disabled]="guardando"
                   (click)="cancelarCrear()">Cancelar</button>
-          <button class="btn btn-primary px-4 fw-medium" (click)="guardar()">
-            {{ editandoDni ? '💾 Actualizar Cambios' : '➕ Registrar Usuario' }}
+          <button class="btn btn-primary px-4 fw-medium" 
+                  [disabled]="guardando"
+                  (click)="guardar()">
+            {{ guardando ? '💾 Guardando...' : (editandoDni ? '💾 Actualizar Cambios' : '➕ Registrar Usuario') }}
           </button>
         </div>
 

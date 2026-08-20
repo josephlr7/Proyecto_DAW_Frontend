@@ -38,6 +38,7 @@ export class Equipamientos implements OnInit {
 
   equipoEdicion: Equipamiento | null = null;
   mostrarFormularioNueva = false;
+  guardando = false;
 
   mensaje = '';
   error = '';
@@ -77,6 +78,7 @@ export class Equipamientos implements OnInit {
   abrirCrear(): void {
     this.mostrarFormularioNueva = true;
     this.equipoEdicion = null;
+    this.guardando = false;
     this.nuevoEquipo = {
       nombre: '',
       funcion: '',
@@ -94,9 +96,11 @@ export class Equipamientos implements OnInit {
 
   cancelarCrear(): void {
     this.mostrarFormularioNueva = false;
+    this.guardando = false;
   }
 
   guardar(): void {
+    if (this.guardando) return;
     this.mensaje = '';
     this.error = '';
 
@@ -105,14 +109,21 @@ export class Equipamientos implements OnInit {
       return;
     }
 
+    this.guardando = true;
+    this.cdr.detectChanges();
+
     this.equipamientoService.crear(this.nuevoEquipo).subscribe({
       next: () => {
+        this.guardando = false;
         this.mensaje = 'Equipo registrado con éxito';
         this.mostrarFormularioNueva = false;
         this.cargarEquipos();
+        this.cdr.detectChanges();
       },
       error: (err) => {
+        this.guardando = false;
         this.error = err.error?.message || 'Error al guardar equipo';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -120,26 +131,36 @@ export class Equipamientos implements OnInit {
   editar(equipo: Equipamiento): void {
     this.equipoEdicion = { ...equipo };
     this.mostrarFormularioNueva = false;
+    this.guardando = false;
   }
 
   cancelarEdicion(): void {
     this.equipoEdicion = null;
+    this.guardando = false;
   }
 
   actualizar(): void {
+    if (this.guardando) return;
     this.mensaje = '';
     this.error = '';
 
     if (!this.equipoEdicion || !this.equipoEdicion.id) return;
 
+    this.guardando = true;
+    this.cdr.detectChanges();
+
     this.equipamientoService.actualizar(this.equipoEdicion.id, this.equipoEdicion).subscribe({
       next: () => {
+        this.guardando = false;
         this.mensaje = 'Equipo actualizado con éxito';
         this.equipoEdicion = null;
         this.cargarEquipos();
+        this.cdr.detectChanges();
       },
       error: (err) => {
+        this.guardando = false;
         this.error = err.error?.message || 'Error al actualizar equipo';
+        this.cdr.detectChanges();
       }
     });
   }

@@ -22,6 +22,7 @@ export class Personal implements OnInit {
   nuevoUsuario: UsuarioUnificadoRequest = this.crearRequestVacio();
   mostrarFormularioNueva = false;
   editandoDni: string | null = null;
+  guardando = false;
   
   mensaje = '';
   error = '';
@@ -63,6 +64,7 @@ export class Personal implements OnInit {
   abrirCrear(): void {
     this.editandoDni = null;
     this.mostrarFormularioNueva = true;
+    this.guardando = false;
     this.nuevoUsuario = this.crearRequestVacio();
     this.cdr.detectChanges();
   }
@@ -70,6 +72,7 @@ export class Personal implements OnInit {
   abrirEditar(u: UsuarioUnificadoResponse): void {
     this.editandoDni = u.dni;
     this.mostrarFormularioNueva = true;
+    this.guardando = false;
     this.nuevoUsuario = {
       nombres: u.nombres,
       apellidos: u.apellidos,
@@ -91,6 +94,7 @@ export class Personal implements OnInit {
   cancelarCrear(): void {
     this.mostrarFormularioNueva = false;
     this.editandoDni = null;
+    this.guardando = false;
     this.cdr.detectChanges();
   }
 
@@ -113,6 +117,7 @@ export class Personal implements OnInit {
   }
 
   guardar(): void {
+    if (this.guardando) return;
     this.mensaje = '';
     this.error = '';
 
@@ -122,9 +127,13 @@ export class Personal implements OnInit {
       return;
     }
 
+    this.guardando = true;
+    this.cdr.detectChanges();
+
     if (this.editandoDni) {
       this.usuarioUnificadoService.actualizar(this.editandoDni, this.nuevoUsuario).subscribe({
         next: () => {
+          this.guardando = false;
           this.mensaje = 'Usuario actualizado con éxito.';
           this.mostrarFormularioNueva = false;
           this.editandoDni = null;
@@ -132,6 +141,7 @@ export class Personal implements OnInit {
           this.cargarUsuarios();
         },
         error: (err) => {
+          this.guardando = false;
           this.error = err.error?.message || 'Error al actualizar el usuario';
           this.cdr.detectChanges();
         }
@@ -139,12 +149,14 @@ export class Personal implements OnInit {
     } else {
       this.usuarioUnificadoService.registrar(this.nuevoUsuario).subscribe({
         next: () => {
+          this.guardando = false;
           this.mensaje = 'Usuario registrado con éxito. Su contraseña es su número de DNI.';
           this.mostrarFormularioNueva = false;
           this.cdr.detectChanges();
           this.cargarUsuarios();
         },
         error: (err) => {
+          this.guardando = false;
           this.error = err.error?.message || 'Error al guardar el usuario';
           this.cdr.detectChanges();
         }

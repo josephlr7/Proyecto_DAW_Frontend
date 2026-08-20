@@ -230,11 +230,20 @@
 
         <div class="card-footer d-flex justify-content-end gap-2 py-3">
           <button class="btn btn-outline-secondary px-4"
+                  [disabled]="guardando"
                   (click)="equipoEdicion ? cancelarEdicion() : cancelarCrear()">Cancelar</button>
           @if (equipoEdicion) {
-            <button class="btn btn-info px-4 text-white" (click)="actualizar()">💾 Guardar Cambios</button>
+            <button class="btn btn-info px-4 text-white" 
+                    [disabled]="guardando"
+                    (click)="actualizar()">
+              {{ guardando ? '💾 Guardando...' : '💾 Guardar Cambios' }}
+            </button>
           } @else {
-            <button class="btn btn-primary px-4" (click)="guardar()">➕ Registrar</button>
+            <button class="btn btn-primary px-4" 
+                    [disabled]="guardando"
+                    (click)="guardar()">
+              {{ guardando ? '⚙️ Registrando...' : '➕ Registrar' }}
+            </button>
           }
         </div>
 

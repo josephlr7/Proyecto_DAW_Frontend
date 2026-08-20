@@ -40,6 +40,7 @@ export class Consumibles implements OnInit {
 
   consumibleEdicion: Consumible | null = null;
   mostrarFormularioNueva = false;
+  guardando = false;
 
   mensaje = '';
   error = '';
@@ -79,13 +80,14 @@ export class Consumibles implements OnInit {
   abrirCrear(): void {
     this.mostrarFormularioNueva = true;
     this.consumibleEdicion = null;
+    this.guardando = false;
     this.nuevoConsumible = {
       nombre: '',
       marca: '',
       empresa: '',
       estadoAdquirido: 'NUEVO',
-      tipo: 'REACTIVO',
-      unidadMedida: 'unidades',
+      tipo: '',
+      unidadMedida: '',
       funcion: '',
       rangoPrecio: '',
       fechaAdquisicion: new Date().toISOString().substring(0, 10),
@@ -98,9 +100,11 @@ export class Consumibles implements OnInit {
 
   cancelarCrear(): void {
     this.mostrarFormularioNueva = false;
+    this.guardando = false;
   }
 
   guardar(): void {
+    if (this.guardando) return;
     this.mensaje = '';
     this.error = '';
 
@@ -109,14 +113,21 @@ export class Consumibles implements OnInit {
       return;
     }
 
+    this.guardando = true;
+    this.cdr.detectChanges();
+
     this.consumibleService.crear(this.nuevoConsumible).subscribe({
       next: () => {
+        this.guardando = false;
         this.mensaje = 'Consumible registrado con éxito';
         this.mostrarFormularioNueva = false;
         this.cargarConsumibles();
+        this.cdr.detectChanges();
       },
       error: (err) => {
+        this.guardando = false;
         this.error = err.error?.message || 'Error al guardar consumible';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -124,26 +135,36 @@ export class Consumibles implements OnInit {
   editar(consumible: Consumible): void {
     this.consumibleEdicion = { ...consumible };
     this.mostrarFormularioNueva = false;
+    this.guardando = false;
   }
 
   cancelarEdicion(): void {
     this.consumibleEdicion = null;
+    this.guardando = false;
   }
 
   actualizar(): void {
+    if (this.guardando) return;
     this.mensaje = '';
     this.error = '';
 
     if (!this.consumibleEdicion || !this.consumibleEdicion.id) return;
 
+    this.guardando = true;
+    this.cdr.detectChanges();
+
     this.consumibleService.actualizar(this.consumibleEdicion.id, this.consumibleEdicion).subscribe({
       next: () => {
+        this.guardando = false;
         this.mensaje = 'Consumible actualizado con éxito';
         this.consumibleEdicion = null;
         this.cargarConsumibles();
+        this.cdr.detectChanges();
       },
       error: (err) => {
+        this.guardando = false;
         this.error = err.error?.message || 'Error al actualizar consumible';
+        this.cdr.detectChanges();
       }
     });
   }

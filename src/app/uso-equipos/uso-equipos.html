@@ -127,9 +127,9 @@
             <textarea class="form-control bg-dark text-light border-secondary" [(ngModel)]="uso.observacion" name="observacion" rows="3"></textarea>
           </div>
           <div class="text-end">
-            <button type="button" class="btn btn-secondary me-2" (click)="cerrarFormulario()">Cancelar</button>
-            <button type="submit" class="btn btn-primary px-4" [disabled]="!usoForm.form.valid">
-              Registrar Uso
+            <button type="button" class="btn btn-secondary me-2" [disabled]="guardando" (click)="cerrarFormulario()">Cancelar</button>
+            <button type="submit" class="btn btn-primary px-4" [disabled]="!usoForm.form.valid || guardando">
+              {{ guardando ? '⏱️ Guardando...' : (usoEditandoId ? '💾 Actualizar Uso' : '➕ Registrar Uso') }}
             </button>
           </div>
         </form>
