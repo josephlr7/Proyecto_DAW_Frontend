@@ -20,6 +20,7 @@ export class UsoEquipos implements OnInit {
   equipamientos: Equipamiento[] = [];
   usos: UsoEquipamientoResponseDTO[] = [];
   mostrarFormulario = false;
+  guardando = false;
   
   uso: UsoEquipamientoRequestDTO = {
     equipamientoId: null,
@@ -61,14 +62,14 @@ export class UsoEquipos implements OnInit {
     });
   }
 
-  abrirFormularioNuevo() {
+  abrirFormulario() {
     this.limpiarFormulario();
     this.usoEditandoId = null;
     this.guardando = false;
     this.mostrarFormulario = true;
   }
 
-  abrirFormularioEditar(registro: UsoEquipamientoResponseDTO) {
+  abrirFormularioEdicion(registro: UsoEquipamientoResponseDTO) {
     this.uso = {
       equipamientoId: registro.equipamientoId,
       nombreInvestigador: registro.nombreInvestigador || '',

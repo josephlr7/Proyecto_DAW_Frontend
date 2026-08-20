@@ -20,6 +20,7 @@ export class UsoConsumibles implements OnInit {
   consumibles: Consumible[] = [];
   usos: UsoConsumibleResponseDTO[] = [];
   mostrarFormulario = false;
+  guardando = false;
   
   uso: UsoConsumibleRequestDTO = {
     consumibleId: null,
