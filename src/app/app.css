@@ -1,0 +1,66 @@
+/* ===== RESPONSIVE LAYOUT & SIDEBAR STYLES ===== */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #111827 !important;
+}
+
+.main-content {
+  min-height: 100vh;
+  background-color: #0f172a;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile & Tablet Styles (< 992px) */
+@media (max-width: 991.98px) {
+  .sidebar {
+    width: 280px !important;
+    max-width: 85vw;
+    transform: translateX(-100%);
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.7);
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(3px);
+    z-index: 1045;
+    animation: fadeIn 0.2s ease;
+  }
+}
+
+/* Desktop Styles (>= 992px) */
+@media (min-width: 992px) {
+  .sidebar {
+    transform: none !important;
+    width: 260px;
+  }
+
+  .main-content {
+    margin-left: 260px;
+  }
+
+  .sidebar-backdrop {
+    display: none !important;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

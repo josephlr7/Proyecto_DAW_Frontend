@@ -15,7 +15,18 @@ export class App {
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  sidebarAbierto = false;
+
+  toggleSidebar(): void {
+    this.sidebarAbierto = !this.sidebarAbierto;
+  }
+
+  cerrarSidebar(): void {
+    this.sidebarAbierto = false;
+  }
+
   salir(): void {
+    this.cerrarSidebar();
     this.authService.logout();
     void this.router.navigate(['/login']);
   }

@@ -1,11 +1,25 @@
 @if (authService.estaAutenticado()) {
-  <div class="d-flex">
+  <div class="d-flex position-relative">
+    <!-- Backdrop oscuro para móviles cuando el sidebar está abierto -->
+    @if (sidebarAbierto) {
+      <div class="sidebar-backdrop d-lg-none" (click)="cerrarSidebar()"></div>
+    }
+
     <!-- Barra Lateral (Sidebar) -->
-    <aside class="sidebar bg-slate-800 text-light border-end border-secondary d-flex flex-column" style="width: 260px; height: 100vh; position: fixed; top: 0; left: 0; z-index: 1000;">
-      <!-- Logo / Cabecera Sidebar -->
-      <div class="sidebar-header p-4 border-bottom border-secondary text-center">
-        <h1 class="h4 font-weight-bold text-info m-0">G-LAB UNT</h1>
-        <small class="text-muted">Gestión de Laboratorios</small>
+    <aside class="sidebar bg-slate-800 text-light border-end border-secondary d-flex flex-column"
+           [class.show]="sidebarAbierto">
+      
+      <!-- Logo / Cabecera Sidebar con botón cerrar en móvil -->
+      <div class="sidebar-header p-3 p-md-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="h4 font-weight-bold text-info m-0">G-LAB UNT</h1>
+          <small class="text-muted">Gestión de Laboratorios</small>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary d-lg-none text-light py-0 px-2 fs-5" 
+                (click)="cerrarSidebar()" 
+                aria-label="Cerrar menú">
+          ✕
+        </button>
       </div>
 
       <!-- Enlaces de Navegación -->
@@ -14,7 +28,10 @@
 
           <!-- Dashboard: todos los roles -->
           <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/dashboard" routerLinkActive="active">
+            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+               routerLink="/dashboard" 
+               routerLinkActive="active"
+               (click)="cerrarSidebar()">
               <span>📊</span> Dashboard
             </a>
           </li>
@@ -22,7 +39,10 @@
           <!-- Sección Académica: ADMIN y PERSONAL -->
           @if (authService.tieneRol('ROLE_ADMIN') || authService.tieneRol('ROLE_PERSONAL')) {
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/laboratorios" routerLinkActive="active">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+                 routerLink="/laboratorios" 
+                 routerLinkActive="active"
+                 (click)="cerrarSidebar()">
                 <span>🔬</span> Laboratorios
               </a>
             </li>
@@ -30,12 +50,18 @@
           <!-- Facultades y Escuelas: solo ADMIN -->
           @if (authService.tieneRol('ROLE_ADMIN')) {
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/facultades" routerLinkActive="active">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+                 routerLink="/facultades" 
+                 routerLinkActive="active"
+                 (click)="cerrarSidebar()">
                 <span>🏫</span> Facultades
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/escuelas" routerLinkActive="active">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+                 routerLink="/escuelas" 
+                 routerLinkActive="active"
+                 (click)="cerrarSidebar()">
                 <span>📖</span> Escuelas
               </a>
             </li>
@@ -45,12 +71,18 @@
           @if (authService.tieneRol('ROLE_ADMIN') || authService.tieneRol('ROLE_PERSONAL')) {
             <hr class="border-secondary my-2">
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/equipamientos" routerLinkActive="active">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+                 routerLink="/equipamientos" 
+                 routerLinkActive="active"
+                 (click)="cerrarSidebar()">
                 <span>🛠️</span> Equipamientos
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/consumibles" routerLinkActive="active">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+                 routerLink="/consumibles" 
+                 routerLinkActive="active"
+                 (click)="cerrarSidebar()">
                 <span>🧪</span> Consumibles
               </a>
             </li>
@@ -59,7 +91,10 @@
           <!-- Usuarios y Personal: solo ADMIN -->
           @if (authService.tieneRol('ROLE_ADMIN')) {
             <li class="nav-item">
-              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/personal" routerLinkActive="active">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+                 routerLink="/personal" 
+                 routerLinkActive="active"
+                 (click)="cerrarSidebar()">
                 <span>👥</span> Usuarios y Personal
               </a>
             </li>
@@ -69,12 +104,18 @@
 
           <!-- Uso: todos los roles -->
           <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/uso-equipos" routerLinkActive="active">
+            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+               routerLink="/uso-equipos" 
+               routerLinkActive="active"
+               (click)="cerrarSidebar()">
               <span>⏱️</span> Uso de Equipos
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/uso-consumibles" routerLinkActive="active">
+            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" 
+               routerLink="/uso-consumibles" 
+               routerLinkActive="active"
+               (click)="cerrarSidebar()">
               <span>📦</span> Uso de Consumibles
             </a>
           </li>
@@ -99,14 +140,27 @@
     </aside>
 
     <!-- Contenido Principal -->
-    <main class="main-content flex-grow-1" style="margin-left: 260px; min-height: 100vh; background-color: #0f172a;">
-      <!-- Cabecera Superior del Contenido -->
-      <header class="navbar navbar-expand navbar-dark bg-slate-800 border-bottom border-secondary px-4 py-3 sticky-top">
-        <span class="navbar-brand text-light m-0 font-weight-bold">Panel Administrativo</span>
+    <main class="main-content flex-grow-1">
+      <!-- Cabecera Superior con Botón Hamburguesa en móvil -->
+      <header class="navbar navbar-dark bg-slate-800 border-bottom border-secondary px-3 px-md-4 py-3 sticky-top d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2 gap-md-3">
+          <!-- Botón Hamburguesa visible solo en pantallas < 992px -->
+          <button class="btn btn-outline-info btn-sm d-lg-none px-2 py-1 me-1" 
+                  (click)="toggleSidebar()" 
+                  aria-label="Abrir menú de navegación">
+            <svg xmlns="http://www.w3.org/2001/XMLSchema-instance" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+          <span class="navbar-brand text-light m-0 font-weight-bold fs-6 fs-md-5">Panel Administrativo</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-info text-dark fw-bold d-none d-sm-inline-block">
+            {{ authService.obtenerRoles()[0]?.replace('ROLE_', '') }}
+          </span>
+        </div>
       </header>
 
       <!-- Contenedor del Componente Activo -->
-      <div class="p-4">
+      <div class="p-3 p-md-4">
         <router-outlet></router-outlet>
       </div>
     </main>
