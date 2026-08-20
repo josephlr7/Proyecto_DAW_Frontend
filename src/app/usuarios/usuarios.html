@@ -1,0 +1,71 @@
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card p-4 shadow">
+        <div class="text-center mb-4">
+          <span class="display-5 text-info">👤</span>
+          <h2 class="h4 mt-2 text-light">Registrar Nuevo Usuario</h2>
+          <p class="text-muted small">Crea cuentas de acceso al sistema para el personal de laboratorio</p>
+        </div>
+
+        <form (ngSubmit)="registrarUsuario()">
+          <div class="mb-3">
+            <label for="usrNombre" class="form-label">Nombre Completo</label>
+            <input
+              id="usrNombre"
+              name="usrNombre"
+              class="form-control"
+              [(ngModel)]="nombre"
+              placeholder="Ej. Juan Pérez"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="usrUsername" class="form-label">Usuario (Username)</label>
+            <input
+              id="usrUsername"
+              name="usrUsername"
+              class="form-control"
+              [(ngModel)]="username"
+              placeholder="Ej. jperez"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="usrPassword" class="form-label">Contraseña</label>
+            <input
+              id="usrPassword"
+              name="usrPassword"
+              type="password"
+              class="form-control"
+              [(ngModel)]="password"
+              placeholder="Mínimo 8 caracteres, 1 mayúscula y 1 número"
+              required
+            />
+          </div>
+
+          @if (mensaje) {
+            <div class="alert alert-success py-2 small mb-3">
+              {{ mensaje }}
+            </div>
+          }
+          @if (error) {
+            <div class="alert alert-danger py-2 small mb-3">
+              {{ error }}
+            </div>
+          }
+
+          <button
+            type="submit"
+            class="btn btn-primary w-100"
+            [disabled]="cargando"
+          >
+            {{ cargando ? 'Registrando...' : 'Registrar Cuenta' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

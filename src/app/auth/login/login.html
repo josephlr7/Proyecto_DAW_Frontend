@@ -1,0 +1,45 @@
+<div class="login-page">
+  <form class="card shadow p-4" (ngSubmit)="ingresar()">
+    <div class="text-center mb-4">
+      <h1 class="h3 font-weight-bold text-primary">G-LAB UNT</h1>
+      <p class="text-muted small">Gestión de Laboratorios de Investigación</p>
+    </div>
+
+    <div class="mb-3">
+      <label for="username" class="form-label">Usuario</label>
+      <input
+        id="username"
+        name="username"
+        class="form-control"
+        [(ngModel)]="username"
+        required
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Contraseña</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        class="form-control"
+        [(ngModel)]="password"
+        required
+      />
+    </div>
+
+    @if (mensaje) {
+      <div class="alert alert-danger py-2 small">
+        {{ mensaje }}
+      </div>
+    }
+
+    <button
+      type="submit"
+      class="btn btn-primary w-100"
+      [disabled]="cargando"
+    >
+      {{ cargando ? 'Ingresando...' : 'Ingresar' }}
+    </button>
+  </form>
+</div>

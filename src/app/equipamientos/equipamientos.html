@@ -1,0 +1,244 @@
+<div class="container-fluid py-4">
+
+  <!-- Cabecera -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-0 text-info fw-bold">⚙️ Gestión de Equipamientos</h2>
+      <small class="text-muted">{{ equipos.length }} equipo(s) registrado(s)</small>
+    </div>
+    @if (authService.tieneRol('ROLE_ADMIN')) {
+      <button class="btn btn-primary px-4" (click)="abrirCrear()">➕ Nuevo Equipo</button>
+    }
+  </div>
+
+  <!-- Alertas -->
+  @if (mensaje) {
+    <div class="alert alert-success alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ✅ {{ mensaje }}
+      <button type="button" class="btn-close ms-auto" (click)="mensaje=''"></button>
+    </div>
+  }
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ❌ {{ error }}
+      <button type="button" class="btn-close ms-auto" (click)="error=''"></button>
+    </div>
+  }
+
+  <!-- Tabla -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th class="ps-4">Equipo</th>
+              <th>Función / Laboratorio</th>
+              <th>Horas Uso / Límite</th>
+              <th class="text-center">Estado</th>
+              <th class="text-center" style="width:180px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (equipo of equipos; track equipo.id) {
+              <tr>
+                <td class="ps-4">
+                  <div class="fw-semibold">{{ equipo.nombre }}</div>
+                  <small class="text-muted">Adquirido en: {{ equipo.anoAdquisicion }}</small>
+                </td>
+                <td>
+                  <div>{{ equipo.funcion }}</div>
+                  <small class="text-info">{{ obtenerNombreLaboratorio(equipo.laboratorioId) }}</small>
+                </td>
+                <td>
+                  <div>{{ equipo.horasUso }} h</div>
+                  <small class="text-muted">Límite: {{ equipo.programaMantenimientoHoras }} h</small>
+                </td>
+                <td class="text-center">
+                  @if (equipo.estado === 'OPERATIVO') {
+                    <span class="badge bg-success">OPERATIVO</span>
+                  } @else if (equipo.estado === 'MANTENIMIENTO') {
+                    <span class="badge bg-warning text-dark">MANTENIMIENTO</span>
+                  } @else {
+                    <span class="badge bg-danger">INOPERATIVO</span>
+                  }
+                </td>
+                <td class="text-center">
+                  @if (authService.tieneRol('ROLE_ADMIN')) {
+                    <button class="btn btn-sm btn-outline-info me-2" (click)="editar(equipo)">✏️ Editar</button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="eliminar(equipo.id!)">🗑️ Eliminar</button>
+                  } @else {
+                    <span class="text-muted small">Sin acciones</span>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                  <div class="fs-1 mb-2">⚙️</div>
+                  No hay equipos registrados aún.<br>
+                  <small>Haz clic en "Nuevo Equipo" para comenzar.</small>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrarFormularioNueva || equipoEdicion) {
+  <div class="modal-backdrop-custom" (click)="equipoEdicion ? cancelarEdicion() : cancelarCrear()"></div>
+  <div class="modal-custom">
+    <div class="modal-custom-dialog" style="max-width: 620px">
+      <div class="card shadow-lg border-0">
+
+        <div class="card-header d-flex justify-content-between align-items-center py-3"
+             style="background: linear-gradient(135deg, #1e3a5f, #2d6a9f);">
+          <h5 class="mb-0 text-white fw-bold">
+            {{ equipoEdicion ? '✏️ Editar Equipo' : '➕ Nuevo Equipo' }}
+          </h5>
+          <button class="btn btn-sm btn-outline-light rounded-circle"
+                  (click)="equipoEdicion ? cancelarEdicion() : cancelarCrear()">✕</button>
+        </div>
+
+        <div class="card-body p-4">
+          @if (equipoEdicion) {
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Nombre del Equipo <span class="text-danger">*</span></label>
+                <input class="form-control" [(ngModel)]="equipoEdicion.nombre" />
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Función <span class="text-danger">*</span></label>
+                <input class="form-control" [(ngModel)]="equipoEdicion.funcion" />
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Laboratorio <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="equipoEdicion.laboratorioId">
+                  <option [value]="0" disabled>Seleccione un laboratorio</option>
+                  @for (lab of laboratorios; track lab.id) {
+                    <option [value]="lab.id">{{ obtenerNombreLaboratorio(lab.id!) }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Rango Precio</label>
+                <input class="form-control" [(ngModel)]="equipoEdicion.rangoPrecio" placeholder="Alto, Medio, Bajo" />
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Año Adquisición</label>
+                <input type="number" class="form-control" [(ngModel)]="equipoEdicion.anoAdquisicion" />
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Horas de Uso</label>
+                <input type="number" class="form-control" [(ngModel)]="equipoEdicion.horasUso" />
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Estado</label>
+                <select class="form-select" [(ngModel)]="equipoEdicion.estado">
+                  <option value="OPERATIVO">OPERATIVO</option>
+                  <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+                  <option value="INOPERATIVO">INOPERATIVO</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Prog. Mantenimiento</label>
+                <input class="form-control" [(ngModel)]="equipoEdicion.programaMantenimiento" />
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Horas Límite</label>
+                <input type="number" class="form-control" [(ngModel)]="equipoEdicion.programaMantenimientoHoras" />
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input id="reqConsEdit" type="checkbox" class="form-check-input" [(ngModel)]="equipoEdicion.requiereConsumible" />
+                  <label for="reqConsEdit" class="form-check-label">¿Requiere consumibles?</label>
+                </div>
+              </div>
+              @if (equipoEdicion.requiereConsumible) {
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Tipo Consumible</label>
+                  <input class="form-control" [(ngModel)]="equipoEdicion.tipoConsumibleRequerido" />
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Nombre del Equipo <span class="text-danger">*</span></label>
+                <input class="form-control" [(ngModel)]="nuevoEquipo.nombre" placeholder="Ej. Microscopio Óptico" />
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Función <span class="text-danger">*</span></label>
+                <input class="form-control" [(ngModel)]="nuevoEquipo.funcion" placeholder="Ej. Análisis celular" />
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Laboratorio <span class="text-danger">*</span></label>
+                <select class="form-select" [(ngModel)]="nuevoEquipo.laboratorioId">
+                  <option [value]="0" disabled>Seleccione un laboratorio</option>
+                  @for (lab of laboratorios; track lab.id) {
+                    <option [value]="lab.id">{{ obtenerNombreLaboratorio(lab.id!) }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Rango Precio</label>
+                <input class="form-control" [(ngModel)]="nuevoEquipo.rangoPrecio" placeholder="Alto, Medio, Bajo" />
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Año Adquisición</label>
+                <input type="number" class="form-control" [(ngModel)]="nuevoEquipo.anoAdquisicion" />
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Horas de Uso</label>
+                <input type="number" class="form-control" [(ngModel)]="nuevoEquipo.horasUso" />
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Estado</label>
+                <select class="form-select" [(ngModel)]="nuevoEquipo.estado">
+                  <option value="OPERATIVO">OPERATIVO</option>
+                  <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+                  <option value="INOPERATIVO">INOPERATIVO</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Prog. Mantenimiento</label>
+                <input class="form-control" [(ngModel)]="nuevoEquipo.programaMantenimiento" placeholder="TRIMESTRAL" />
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-semibold">Horas Límite</label>
+                <input type="number" class="form-control" [(ngModel)]="nuevoEquipo.programaMantenimientoHoras" />
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input id="reqCons" type="checkbox" class="form-check-input" [(ngModel)]="nuevoEquipo.requiereConsumible" />
+                  <label for="reqCons" class="form-check-label">¿Requiere consumibles?</label>
+                </div>
+              </div>
+              @if (nuevoEquipo.requiereConsumible) {
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Tipo Consumible</label>
+                  <input class="form-control" [(ngModel)]="nuevoEquipo.tipoConsumibleRequerido" placeholder="Ej. Reactivo A" />
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2 py-3">
+          <button class="btn btn-outline-secondary px-4"
+                  (click)="equipoEdicion ? cancelarEdicion() : cancelarCrear()">Cancelar</button>
+          @if (equipoEdicion) {
+            <button class="btn btn-info px-4 text-white" (click)="actualizar()">💾 Guardar Cambios</button>
+          } @else {
+            <button class="btn btn-primary px-4" (click)="guardar()">➕ Registrar</button>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+}

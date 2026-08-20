@@ -1,0 +1,139 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="h4 text-light fw-bold mb-1">Uso de Equipos</h2>
+      <p class="text-secondary mb-0">Registro semanal de uso del equipamiento</p>
+    </div>
+    <button class="btn btn-primary px-4 py-2" (click)="abrirFormulario()">
+      <i class="bi bi-plus-lg me-2"></i>Registrar uso
+    </button>
+  </div>
+
+  <div *ngIf="mensajeExito" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ mensajeExito }}
+    <button type="button" class="btn-close" (click)="mensajeExito = null"></button>
+  </div>
+  <div *ngIf="mensajeError" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ mensajeError }}
+    <button type="button" class="btn-close" (click)="mensajeError = null"></button>
+  </div>
+
+  <div class="card bg-dark border-secondary shadow-sm">
+    <div class="card-header bg-dark border-secondary py-3 d-flex align-items-center gap-3">
+      <input type="text" class="form-control bg-dark text-light border-secondary" style="max-width: 300px;" placeholder="Buscar investigador o equipo">
+      <span class="text-secondary">{{ usos.length }} registros</span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-dark table-hover mb-0 align-middle">
+          <thead>
+            <tr>
+              <th class="text-secondary fw-normal py-3 ps-4" style="font-size: 0.8rem;">FECHA / HORA</th>
+              <th class="text-secondary fw-normal py-3" style="font-size: 0.8rem;">EQUIPO</th>
+              <th class="text-secondary fw-normal py-3" style="font-size: 0.8rem;">INVESTIGADOR</th>
+              <th class="text-secondary fw-normal py-3" style="font-size: 0.8rem;">TIPO INVESTIGACIÓN</th>
+              <th class="text-secondary fw-normal py-3" style="font-size: 0.8rem;">TIEMPO</th>
+              <th class="text-secondary fw-normal py-3 text-end pe-4" style="font-size: 0.8rem;">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of usos" class="border-b border-gray-700 hover:bg-gray-800">
+              <td class="py-4 px-4 text-sm text-gray-300">
+                {{ item.fecha | date:'dd/MM/yyyy' }}<br>
+                <span class="text-xs text-secondary">{{ item.hora }}</span>
+              </td>
+              <td class="py-4 text-sm font-medium text-white">{{ item.equipamientoNombre }}</td>
+              <td class="py-4 text-sm text-gray-300">
+                {{ item.nombreInvestigador || item.investigadorNombreCompleto }}<br>
+                <span class="text-xs text-secondary">{{ item.actividadNombre }}</span>
+              </td>
+              <td class="py-4 text-sm text-gray-300">{{ item.tipoInvestigacion }}</td>
+              <td class="py-4 text-sm font-bold text-info">{{ item.horasUso }} Horas</td>
+              <td class="py-4 text-end pe-4">
+                <div class="d-flex justify-content-end gap-2">
+                  @if (authService.tieneRol('ROLE_ADMIN') || authService.tieneRol('ROLE_PERSONAL')) {
+                    <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" (click)="abrirFormularioEdicion(item)" title="Editar">
+                      <svg xmlns="http://www.w3.org/2001/XMLSchema-instance" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                      <span>Editar</span>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1" (click)="eliminarUso(item.id)" title="Eliminar">
+                      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                      <span>Eliminar</span>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="usos.length === 0">
+              <td colspan="6" class="text-center py-5 text-secondary">
+                No hay registros de uso de equipos.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" [class.show]="mostrarFormulario" [style.display]="mostrarFormulario ? 'block' : 'none'" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-light border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title">{{ usoEditandoId ? 'Editar' : 'Registrar' }} Uso de Equipo</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrarFormulario()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form (ngSubmit)="guardarUso()" #usoForm="ngForm">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-muted">Nombre del Investigador</label>
+              <input type="text" class="form-control bg-dark text-light border-secondary" [(ngModel)]="uso.nombreInvestigador" name="nombreInvestigador" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted">Equipo Utilizado</label>
+              <select class="form-select bg-dark text-light border-secondary" [(ngModel)]="uso.equipamientoId" name="equipamientoId" required>
+                <option [ngValue]="null" disabled>Seleccione un equipo...</option>
+                <option *ngFor="let eq of equipamientos" [ngValue]="eq.id">{{ eq.nombre }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-muted">Nombre de Actividad</label>
+              <input type="text" class="form-control bg-dark text-light border-secondary" [(ngModel)]="uso.actividadNombre" name="actividadNombre" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted">Tipo de Investigación</label>
+              <input type="text" class="form-control bg-dark text-light border-secondary" [(ngModel)]="uso.tipoInvestigacion" name="tipoInvestigacion" required>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label text-muted">Fecha del Uso</label>
+              <input type="date" class="form-control bg-dark text-light border-secondary" [(ngModel)]="uso.fecha" name="fecha" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label text-muted">Hora de Inicio</label>
+              <input type="time" class="form-control bg-dark text-light border-secondary" [(ngModel)]="uso.hora" name="hora" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label text-muted">Horas de Uso</label>
+              <input type="number" step="0.1" class="form-control bg-dark text-light border-secondary" [(ngModel)]="uso.horasUso" name="horasUso" required>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label text-muted">Observaciones</label>
+            <textarea class="form-control bg-dark text-light border-secondary" [(ngModel)]="uso.observacion" name="observacion" rows="3"></textarea>
+          </div>
+          <div class="text-end">
+            <button type="button" class="btn btn-secondary me-2" (click)="cerrarFormulario()">Cancelar</button>
+            <button type="submit" class="btn btn-primary px-4" [disabled]="!usoForm.form.valid">
+              Registrar Uso
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

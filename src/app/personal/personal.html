@@ -1,0 +1,227 @@
+<div class="container-fluid py-4">
+
+  <!-- Cabecera -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-0 text-info fw-bold">👥 Gestión de Usuarios y Personal</h2>
+      <small class="text-muted">Personal, Investigadores y Administradores del Sistema</small>
+    </div>
+    <button class="btn btn-primary px-4" (click)="abrirCrear()">➕ Crear Usuario</button>
+  </div>
+
+  <!-- Alertas -->
+  @if (mensaje) {
+    <div class="alert alert-success alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ✅ {{ mensaje }}
+      <button type="button" class="btn-close ms-auto" (click)="mensaje=''"></button>
+    </div>
+  }
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ❌ {{ error }}
+      <button type="button" class="btn-close ms-auto" (click)="error=''"></button>
+    </div>
+  }
+
+  <!-- Tabla -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th class="ps-4">Usuario / Rol Principal</th>
+              <th>DNI / Género</th>
+              <th>Cargo o Grado / Laboratorio</th>
+              <th class="text-center">Clasificación / Rol</th>
+              <th class="text-center" style="width:200px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of usuarios; track p.personaId) {
+              <tr>
+                <td class="ps-4">
+                  <div class="fw-semibold">{{ p.apellidos }}, {{ p.nombres }}</div>
+                  <small class="text-muted">{{ p.rolSistema }}</small>
+                </td>
+                <td>
+                  <div>{{ p.dni }}</div>
+                  <small class="text-muted">{{ p.genero }}</small>
+                </td>
+                <td>
+                  <div class="fw-semibold">{{ p.rolSistema === 'INVESTIGADOR' ? p.gradoAcademico : p.cargo }}</div>
+                  <small class="text-info">{{ p.rolSistema === 'INVESTIGADOR' ? p.programaEstudios : obtenerNombreLaboratorio(p.laboratorioId) }}</small>
+                </td>
+                <td class="text-center">
+                  @if (p.rolSistema === 'ADMIN') {
+                    <span class="badge bg-danger">ADMINISTRADOR</span>
+                  }
+                  @if (p.rolSistema === 'INVESTIGADOR') {
+                    <span class="badge bg-success">INVESTIGADOR</span>
+                  }
+                  @if (p.rolSistema === 'PERSONAL') {
+                    @if (p.renacyt) {
+                      <span class="badge bg-success me-1">RENACYT</span>
+                    }
+                    @if (p.esDocenteInvestigadorUNT) {
+                      <span class="badge bg-primary">INV-UNT</span>
+                    }
+                    @if (!p.renacyt && !p.esDocenteInvestigadorUNT) {
+                      <span class="badge bg-secondary">PERSONAL LAB</span>
+                    }
+                  }
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-primary me-2" (click)="abrirEditar(p)">✏️ Editar</button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="eliminar(p.dni)">🗑️ Dar de baja</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                  <div class="fs-1 mb-2">👥</div>
+                  No hay usuarios registrados aún.<br>
+                  <small>Haz clic en "Crear Usuario" para comenzar.</small>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CREAR USUARIO UNIFICADO ===== -->
+@if (mostrarFormularioNueva) {
+  <div class="modal-backdrop-custom" (click)="cancelarCrear()"></div>
+  <div class="modal-custom">
+    <div class="modal-custom-dialog" style="max-width: 700px">
+      <div class="card shadow-lg border-0">
+
+        <div class="card-header d-flex justify-content-between align-items-center py-3"
+             style="background: linear-gradient(135deg, #1e3a5f, #2d6a9f);">
+          <h5 class="mb-0 text-white fw-bold">
+            {{ editandoDni ? '✏️ Editar Usuario' : '➕ Registrar Nuevo Usuario' }}
+          </h5>
+          <button class="btn btn-sm btn-outline-light rounded-circle"
+                  (click)="cancelarCrear()">✕</button>
+        </div>
+
+        <div class="card-body p-4" style="max-height:75vh; overflow-y:auto">
+          
+          <div class="alert alert-info py-2 mb-4 d-flex align-items-center gap-2">
+            <span class="fs-5">ℹ️</span> 
+            <small>Al registrarse, el <strong>DNI</strong> será utilizado automáticamente como su nombre de usuario y contraseña.</small>
+          </div>
+
+          <div class="row g-3">
+            <h6 class="text-secondary border-bottom pb-2">Datos Personales</h6>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Nombres <span class="text-danger">*</span></label>
+              <input class="form-control" [(ngModel)]="nuevoUsuario.nombres" placeholder="Ej. Juan Carlos"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Apellidos <span class="text-danger">*</span></label>
+              <input class="form-control" [(ngModel)]="nuevoUsuario.apellidos" placeholder="Ej. Perez Gomez"/>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">DNI <span class="text-danger">*</span></label>
+              <input class="form-control" [(ngModel)]="nuevoUsuario.dni" maxlength="8" [disabled]="!!editandoDni" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Género <span class="text-danger">*</span></label>
+              <select class="form-select" [(ngModel)]="nuevoUsuario.genero">
+                <option value="MASCULINO">MASCULINO</option>
+                <option value="FEMENINO">FEMENINO</option>
+              </select>
+            </div>
+
+            <h6 class="text-secondary border-bottom pb-2 mt-4">Acceso y Rol en el Sistema</h6>
+            <div class="col-md-12">
+              <label class="form-label fw-semibold">Rol del Usuario <span class="text-danger">*</span></label>
+              <select class="form-select" [(ngModel)]="nuevoUsuario.rolSistema" [disabled]="!!editandoDni">
+                <option value="ADMIN">ADMINISTRADOR (Control Total)</option>
+                <option value="PERSONAL">PERSONAL DE LABORATORIO (Jefe, Asistente, Técnico)</option>
+                <option value="INVESTIGADOR">INVESTIGADOR / TESISTA</option>
+              </select>
+              @if (editandoDni) {
+                <small class="text-muted">El rol principal y DNI no pueden cambiarse una vez creados.</small>
+              }
+            </div>
+
+            <!-- Mostrar Solo si el Rol NO ES INVESTIGADOR (O sea Personal o Admin con laboratorio) -->
+            @if (nuevoUsuario.rolSistema === 'PERSONAL' || nuevoUsuario.rolSistema === 'ADMIN') {
+              <div class="col-md-12 mt-3">
+                <label class="form-label fw-semibold">Laboratorio Asignado</label>
+                <select class="form-select" [(ngModel)]="nuevoUsuario.laboratorioId">
+                  <option [value]="0">General / Ninguno específico</option>
+                  @for (lab of laboratorios; track lab.id) {
+                    <option [value]="lab.id">{{ obtenerNombreLaboratorio(lab.id!) }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Cargo (Para Personal)</label>
+                <select class="form-select" [(ngModel)]="nuevoUsuario.cargo">
+                  <option value="JEFE_LABORATORIO">JEFE DE LABORATORIO</option>
+                  <option value="TECNICO">TÉCNICO</option>
+                  <option value="ASISTENTE">ASISTENTE</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Condición</label>
+                <select class="form-select" [(ngModel)]="nuevoUsuario.condicion">
+                  <option value="CONTRATADO">CONTRATADO</option>
+                  <option value="NOMBRADO">NOMBRADO</option>
+                  <option value="PRACTICANTE">PRACTICANTE</option>
+                </select>
+              </div>
+              <div class="col-12 mt-3 d-flex flex-column gap-2 border border-secondary p-3 rounded" style="background-color: #1a2a3a;">
+                <small class="text-secondary fw-semibold mb-1">Clasificaciones adicionales</small>
+                <div class="form-check">
+                  <input id="esDoc" type="checkbox" class="form-check-input" [(ngModel)]="nuevoUsuario.esDocente" />
+                  <label for="esDoc" class="form-check-label text-light">¿Es Docente Universitario?</label>
+                </div>
+                <div class="form-check">
+                  <input id="esRen" type="checkbox" class="form-check-input" [(ngModel)]="nuevoUsuario.renacyt" />
+                  <label for="esRen" class="form-check-label text-light">¿Está clasificado en RENACYT?</label>
+                </div>
+                <div class="form-check">
+                  <input id="esInvUnt" type="checkbox" class="form-check-input" [(ngModel)]="nuevoUsuario.esDocenteInvestigadorUNT" />
+                  <label for="esInvUnt" class="form-check-label text-light">¿Es Docente Investigador UNT?</label>
+                </div>
+              </div>
+            }
+
+            <!-- Mostrar Solo si el Rol ES INVESTIGADOR -->
+            @if (nuevoUsuario.rolSistema === 'INVESTIGADOR') {
+              <div class="col-md-6 mt-3">
+                <label class="form-label fw-semibold">Programa de Estudios</label>
+                <input class="form-control" [(ngModel)]="nuevoUsuario.programaEstudios" placeholder="Ej. Ing. de Sistemas" />
+              </div>
+              <div class="col-md-6 mt-3">
+                <label class="form-label fw-semibold">Grado Académico</label>
+                <select class="form-select" [(ngModel)]="nuevoUsuario.gradoAcademico">
+                  <option value="ESTUDIANTE">Estudiante / Tesista Pregrado</option>
+                  <option value="BACHILLER">Bachiller</option>
+                  <option value="MAGISTER">Magister</option>
+                  <option value="DOCTOR">Doctor</option>
+                </select>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2 py-3" style="background-color: #112233; border-top: 1px solid #2d4a6a;">
+          <button class="btn btn-outline-secondary px-4 fw-medium"
+                  (click)="cancelarCrear()">Cancelar</button>
+          <button class="btn btn-primary px-4 fw-medium" (click)="guardar()">
+            {{ editandoDni ? '💾 Actualizar Cambios' : '➕ Registrar Usuario' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+}

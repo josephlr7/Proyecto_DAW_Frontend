@@ -1,0 +1,139 @@
+<div class="container-fluid py-4">
+
+  <!-- Cabecera -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-0 text-info fw-bold">🏫 Gestión de Escuelas</h2>
+      <small class="text-muted">{{ escuelas.length }} escuela(s) registrada(s)</small>
+    </div>
+    <button class="btn btn-primary px-4" (click)="abrirModal()">
+      ➕ Nueva Escuela
+    </button>
+  </div>
+
+  <!-- Alertas -->
+  @if (mensaje) {
+    <div class="alert alert-success alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ✅ {{ mensaje }}
+      <button type="button" class="btn-close ms-auto" (click)="mensaje=''"></button>
+    </div>
+  }
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ❌ {{ error }}
+      <button type="button" class="btn-close ms-auto" (click)="error=''"></button>
+    </div>
+  }
+
+  <!-- Tabla -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="width: 80px" class="ps-4">#</th>
+              <th>Nombre de Escuela</th>
+              <th>Facultad</th>
+              <th style="width: 180px" class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (escuela of escuelas; track escuela.id) {
+              <tr>
+                <td class="ps-4 text-muted">{{ escuela.id }}</td>
+                <td class="fw-semibold">{{ escuela.nombre }}</td>
+                <td>
+                  <span class="badge bg-secondary">{{ obtenerNombreFacultad(escuela.facultadId) }}</span>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-info me-2" (click)="abrirEdicion(escuela)">
+                    ✏️ Editar
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="eliminar(escuela.id!)">
+                    🗑️ Eliminar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="text-center text-muted py-5">
+                  <div class="fs-1 mb-2">🏫</div>
+                  No hay escuelas registradas aún.<br>
+                  <small>Haz clic en "Nueva Escuela" para comenzar.</small>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrarModal) {
+  <div class="modal-backdrop-custom" (click)="cerrarModal()"></div>
+  <div class="modal-custom">
+    <div class="modal-custom-dialog">
+      <div class="card shadow-lg border-0">
+
+        <div class="card-header d-flex justify-content-between align-items-center py-3"
+             style="background: linear-gradient(135deg, #1e3a5f, #2d6a9f);">
+          <h5 class="mb-0 text-white fw-bold">
+            {{ escuelaEdicion ? '✏️ Editar Escuela' : '➕ Nueva Escuela' }}
+          </h5>
+          <button class="btn btn-sm btn-outline-light rounded-circle" (click)="cerrarModal()">✕</button>
+        </div>
+
+        <div class="card-body p-4">
+          @if (escuelaEdicion) {
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nombre de Escuela <span class="text-danger">*</span></label>
+              <input class="form-control form-control-lg" [(ngModel)]="escuelaEdicion.nombre"
+                     placeholder="Ej. Ingeniería de Sistemas" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Facultad <span class="text-danger">*</span></label>
+              <select class="form-select form-select-lg" [(ngModel)]="escuelaEdicion.facultadId">
+                <option [value]="0" disabled>Seleccione una facultad</option>
+                @for (facultad of facultades; track facultad.id) {
+                  <option [value]="facultad.id">{{ facultad.nombre }}</option>
+                }
+              </select>
+            </div>
+          } @else {
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nombre de Escuela <span class="text-danger">*</span></label>
+              <input class="form-control form-control-lg" [(ngModel)]="nuevaEscuela.nombre"
+                     placeholder="Ej. Ingeniería de Sistemas" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Facultad <span class="text-danger">*</span></label>
+              <select class="form-select form-select-lg" [(ngModel)]="nuevaEscuela.facultadId">
+                <option [value]="0" disabled>Seleccione una facultad</option>
+                @for (facultad of facultades; track facultad.id) {
+                  <option [value]="facultad.id">{{ facultad.nombre }}</option>
+                }
+              </select>
+            </div>
+          }
+
+          @if (errorModal) {
+            <div class="alert alert-danger py-2 small">❌ {{ errorModal }}</div>
+          }
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2 py-3">
+          <button class="btn btn-outline-secondary px-4" (click)="cerrarModal()">Cancelar</button>
+          @if (escuelaEdicion) {
+            <button class="btn btn-info px-4 text-white" (click)="actualizar()">💾 Guardar Cambios</button>
+          } @else {
+            <button class="btn btn-primary px-4" (click)="guardar()">➕ Agregar</button>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+}

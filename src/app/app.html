@@ -1,0 +1,119 @@
+@if (authService.estaAutenticado()) {
+  <div class="d-flex">
+    <!-- Barra Lateral (Sidebar) -->
+    <aside class="sidebar bg-slate-800 text-light border-end border-secondary d-flex flex-column" style="width: 260px; height: 100vh; position: fixed; top: 0; left: 0; z-index: 1000;">
+      <!-- Logo / Cabecera Sidebar -->
+      <div class="sidebar-header p-4 border-bottom border-secondary text-center">
+        <h1 class="h4 font-weight-bold text-info m-0">G-LAB UNT</h1>
+        <small class="text-muted">Gestión de Laboratorios</small>
+      </div>
+
+      <!-- Enlaces de Navegación -->
+      <nav class="sidebar-menu flex-grow-1 p-3 overflow-y-auto">
+        <ul class="nav flex-column gap-2">
+
+          <!-- Dashboard: todos los roles -->
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/dashboard" routerLinkActive="active">
+              <span>📊</span> Dashboard
+            </a>
+          </li>
+
+          <!-- Sección Académica: ADMIN y PERSONAL -->
+          @if (authService.tieneRol('ROLE_ADMIN') || authService.tieneRol('ROLE_PERSONAL')) {
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/laboratorios" routerLinkActive="active">
+                <span>🔬</span> Laboratorios
+              </a>
+            </li>
+          }
+          <!-- Facultades y Escuelas: solo ADMIN -->
+          @if (authService.tieneRol('ROLE_ADMIN')) {
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/facultades" routerLinkActive="active">
+                <span>🏫</span> Facultades
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/escuelas" routerLinkActive="active">
+                <span>📖</span> Escuelas
+              </a>
+            </li>
+          }
+
+          <!-- Inventario: ADMIN y PERSONAL -->
+          @if (authService.tieneRol('ROLE_ADMIN') || authService.tieneRol('ROLE_PERSONAL')) {
+            <hr class="border-secondary my-2">
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/equipamientos" routerLinkActive="active">
+                <span>🛠️</span> Equipamientos
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/consumibles" routerLinkActive="active">
+                <span>🧪</span> Consumibles
+              </a>
+            </li>
+          }
+
+          <!-- Usuarios y Personal: solo ADMIN -->
+          @if (authService.tieneRol('ROLE_ADMIN')) {
+            <li class="nav-item">
+              <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/personal" routerLinkActive="active">
+                <span>👥</span> Usuarios y Personal
+              </a>
+            </li>
+          }
+
+          <hr class="border-secondary my-2">
+
+          <!-- Uso: todos los roles -->
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/uso-equipos" routerLinkActive="active">
+              <span>⏱️</span> Uso de Equipos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none" routerLink="/uso-consumibles" routerLinkActive="active">
+              <span>📦</span> Uso de Consumibles
+            </a>
+          </li>
+
+        </ul>
+      </nav>
+
+      <!-- Footer de Usuario -->
+      <div class="p-3 border-top border-secondary">
+        <div class="d-flex flex-column gap-2">
+          <div class="small text-truncate text-light fw-semibold">
+            {{ authService.obtenerNombre() | titlecase }}
+          </div>
+          <div class="small text-info text-truncate fw-bold mb-1" style="font-size: 0.75rem;">
+            {{ authService.obtenerRoles()[0]?.replace('ROLE_', '') }}
+          </div>
+          <button class="btn btn-outline-danger btn-sm w-100 mt-1" (click)="salir()">
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="main-content flex-grow-1" style="margin-left: 260px; min-height: 100vh; background-color: #0f172a;">
+      <!-- Cabecera Superior del Contenido -->
+      <header class="navbar navbar-expand navbar-dark bg-slate-800 border-bottom border-secondary px-4 py-3 sticky-top">
+        <span class="navbar-brand text-light m-0 font-weight-bold">Panel Administrativo</span>
+      </header>
+
+      <!-- Contenedor del Componente Activo -->
+      <div class="p-4">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+} @else {
+  <!-- Vista del Componente de Login (sin barra lateral) -->
+  <div class="container-fluid p-0">
+    <router-outlet></router-outlet>
+  </div>
+}

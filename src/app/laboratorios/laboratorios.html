@@ -1,0 +1,193 @@
+<div class="container-fluid py-4">
+
+  <!-- Cabecera -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-0 text-info fw-bold">🔬 Gestión de Laboratorios</h2>
+      <small class="text-muted">{{ totalElementos }} laboratorio(s) registrado(s)</small>
+    </div>
+    <button class="btn btn-primary px-4" (click)="abrirCrear()">➕ Nuevo Laboratorio</button>
+  </div>
+
+  <!-- Alertas -->
+  @if (mensaje) {
+    <div class="alert alert-success alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ✅ {{ mensaje }}
+      <button type="button" class="btn-close ms-auto" (click)="mensaje=''"></button>
+    </div>
+  }
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ❌ {{ error }}
+      <button type="button" class="btn-close ms-auto" (click)="error=''"></button>
+    </div>
+  }
+
+  <!-- Filtros -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body py-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label small fw-semibold mb-1">Facultad</label>
+          <select class="form-select form-select-sm" [(ngModel)]="facultadBusqueda" (change)="onFacultadBusquedaChange()">
+            <option value="">Todas las facultades</option>
+            @for (fac of facultades; track fac.id) {
+              <option [value]="fac.nombre">{{ fac.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-5">
+          <label class="form-label small fw-semibold mb-1">Escuela</label>
+          <select class="form-select form-select-sm" [(ngModel)]="escuelaBusqueda" [disabled]="!facultadBusqueda" (change)="onEscuelaBusquedaChange()">
+            <option value="">Todas las escuelas</option>
+            @for (esc of escuelasFiltradas; track esc.id) {
+              <option [value]="esc.nombre">{{ esc.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-sm btn-outline-secondary w-100" (click)="limpiarBusqueda()">🔄 Limpiar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="width:60px" class="ps-4">#</th>
+              <th>Escuela</th>
+              <th>Facultad</th>
+              <th class="text-center" style="width:110px">Sist. Gestión</th>
+              <th class="text-center" style="width:180px">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (lab of laboratorios; track lab.id) {
+              <tr>
+                <td class="ps-4 text-muted">{{ lab.id }}</td>
+                <td class="fw-semibold">{{ lab.escuela }}</td>
+                <td><span class="badge bg-secondary">{{ lab.facultad }}</span></td>
+                <td class="text-center">
+                  @if (lab.poseeSistemaGestion) {
+                    <span class="badge bg-success">SÍ</span>
+                  } @else {
+                    <span class="badge bg-secondary">NO</span>
+                  }
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-info me-2" (click)="editar(lab)">✏️ Editar</button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="eliminar(lab.id!)">🗑️ Eliminar</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                  <div class="fs-1 mb-2">🔬</div>
+                  No hay laboratorios registrados aún.<br>
+                  <small>Haz clic en "Nuevo Laboratorio" para comenzar.</small>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Paginación -->
+    @if (totalPaginas > 1) {
+      <div class="card-footer d-flex justify-content-between align-items-center py-2">
+        <small class="text-muted">Página {{ paginaActual + 1 }} de {{ totalPaginas }} ({{ totalElementos }} elementos)</small>
+        <div class="btn-group">
+          <button class="btn btn-sm btn-outline-light" [disabled]="paginaActual === 0" (click)="cambiarPagina(paginaActual - 1)">‹ Anterior</button>
+          <button class="btn btn-sm btn-outline-light" [disabled]="paginaActual === totalPaginas - 1" (click)="cambiarPagina(paginaActual + 1)">Siguiente ›</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrarFormularioNueva || laboratorioEdicion) {
+  <div class="modal-backdrop-custom" (click)="laboratorioEdicion ? cancelarEdicion() : cancelarCrear()"></div>
+  <div class="modal-custom">
+    <div class="modal-custom-dialog">
+      <div class="card shadow-lg border-0">
+
+        <div class="card-header d-flex justify-content-between align-items-center py-3"
+             style="background: linear-gradient(135deg, #1e3a5f, #2d6a9f);">
+          <h5 class="mb-0 text-white fw-bold">
+            {{ laboratorioEdicion ? '✏️ Editar Laboratorio' : '➕ Nuevo Laboratorio' }}
+          </h5>
+          <button class="btn btn-sm btn-outline-light rounded-circle"
+                  (click)="laboratorioEdicion ? cancelarEdicion() : cancelarCrear()">✕</button>
+        </div>
+
+        <div class="card-body p-4">
+          @if (laboratorioEdicion) {
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Facultad <span class="text-danger">*</span></label>
+              <select class="form-select" [(ngModel)]="laboratorioEdicion.facultad" (change)="onFacultadFormChange('editar')">
+                <option value="" disabled>Seleccione una facultad</option>
+                @for (fac of facultades; track fac.id) {
+                  <option [value]="fac.nombre">{{ fac.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Escuela <span class="text-danger">*</span></label>
+              <select class="form-select" [(ngModel)]="laboratorioEdicion.escuela" [disabled]="!laboratorioEdicion.facultad">
+                <option value="" disabled>Seleccione una escuela</option>
+                @for (esc of escuelasFormulario; track esc.id) {
+                  <option [value]="esc.nombre">{{ esc.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-check">
+              <input id="gestionEdit" type="checkbox" class="form-check-input" [(ngModel)]="laboratorioEdicion.poseeSistemaGestion" />
+              <label for="gestionEdit" class="form-check-label">¿Posee Sistema de Gestión?</label>
+            </div>
+          } @else {
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Facultad <span class="text-danger">*</span></label>
+              <select class="form-select" [(ngModel)]="nuevoLaboratorio.facultad" (change)="onFacultadFormChange('crear')">
+                <option value="" disabled>Seleccione una facultad</option>
+                @for (fac of facultades; track fac.id) {
+                  <option [value]="fac.nombre">{{ fac.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Escuela <span class="text-danger">*</span></label>
+              <select class="form-select" [(ngModel)]="nuevoLaboratorio.escuela" [disabled]="!nuevoLaboratorio.facultad">
+                <option value="" disabled>Seleccione una escuela</option>
+                @for (esc of escuelasFormulario; track esc.id) {
+                  <option [value]="esc.nombre">{{ esc.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-check">
+              <input id="gestionCrear" type="checkbox" class="form-check-input" [(ngModel)]="nuevoLaboratorio.poseeSistemaGestion" />
+              <label for="gestionCrear" class="form-check-label">¿Posee Sistema de Gestión?</label>
+            </div>
+          }
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2 py-3">
+          <button class="btn btn-outline-secondary px-4"
+                  (click)="laboratorioEdicion ? cancelarEdicion() : cancelarCrear()">Cancelar</button>
+          @if (laboratorioEdicion) {
+            <button class="btn btn-info px-4 text-white" (click)="actualizar()">💾 Guardar Cambios</button>
+          } @else {
+            <button class="btn btn-primary px-4" (click)="guardar()">➕ Registrar</button>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+}

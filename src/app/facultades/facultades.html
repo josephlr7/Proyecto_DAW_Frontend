@@ -1,0 +1,121 @@
+<div class="container-fluid py-4">
+
+  <!-- Cabecera con botón Nueva Facultad -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-0 text-info fw-bold">🏛️ Gestión de Facultades</h2>
+      <small class="text-muted">{{ facultades.length }} facultad(es) registrada(s)</small>
+    </div>
+    <button class="btn btn-primary px-4" (click)="abrirModal()">
+      ➕ Nueva Facultad
+    </button>
+  </div>
+
+  <!-- Alertas -->
+  @if (mensaje) {
+    <div class="alert alert-success alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ✅ {{ mensaje }}
+      <button type="button" class="btn-close ms-auto" (click)="mensaje=''"></button>
+    </div>
+  }
+  @if (error) {
+    <div class="alert alert-danger alert-dismissible d-flex align-items-center gap-2 mb-3">
+      ❌ {{ error }}
+      <button type="button" class="btn-close ms-auto" (click)="error=''"></button>
+    </div>
+  }
+
+  <!-- Tabla principal (ocupa todo el ancho) -->
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th style="width: 80px" class="ps-4">#</th>
+              <th>Nombre de Facultad</th>
+              <th style="width: 180px" class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (facultad of facultades; track facultad.id) {
+              <tr>
+                <td class="ps-4 text-muted">{{ facultad.id }}</td>
+                <td class="fw-semibold">{{ facultad.nombre }}</td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-info me-2" (click)="abrirEdicion(facultad)">
+                    ✏️ Editar
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger" (click)="eliminar(facultad.id!)">
+                    🗑️ Eliminar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="text-center text-muted py-5">
+                  <div class="fs-1 mb-2">🏛️</div>
+                  No hay facultades registradas aún.<br>
+                  <small>Haz clic en "Nueva Facultad" para comenzar.</small>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL CREAR / EDITAR ===== -->
+@if (mostrarModal) {
+  <div class="modal-backdrop-custom" (click)="cerrarModal()"></div>
+  <div class="modal-custom">
+    <div class="modal-custom-dialog">
+      <div class="card shadow-lg border-0">
+
+        <!-- Header del modal -->
+        <div class="card-header d-flex justify-content-between align-items-center py-3"
+             style="background: linear-gradient(135deg, #1e3a5f, #2d6a9f);">
+          <h5 class="mb-0 text-white fw-bold">
+            {{ facultadEdicion ? '✏️ Editar Facultad' : '➕ Nueva Facultad' }}
+          </h5>
+          <button class="btn btn-sm btn-outline-light rounded-circle" (click)="cerrarModal()">✕</button>
+        </div>
+
+        <!-- Cuerpo del modal -->
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Nombre de Facultad <span class="text-danger">*</span></label>
+            @if (facultadEdicion) {
+              <input
+                class="form-control form-control-lg"
+                [(ngModel)]="facultadEdicion.nombre"
+                placeholder="Ej. Facultad de Ingeniería"
+                autofocus
+              />
+            } @else {
+              <input
+                class="form-control form-control-lg"
+                [(ngModel)]="nuevaFacultad.nombre"
+                placeholder="Ej. Facultad de Ingeniería"
+                autofocus
+              />
+            }
+          </div>
+        </div>
+
+        <!-- Footer del modal -->
+        <div class="card-footer d-flex justify-content-end gap-2 py-3">
+          <button class="btn btn-outline-secondary px-4" (click)="cerrarModal()">Cancelar</button>
+          @if (facultadEdicion) {
+            <button class="btn btn-info px-4 text-white" (click)="actualizar()">💾 Guardar Cambios</button>
+          } @else {
+            <button class="btn btn-primary px-4" (click)="guardar()">➕ Agregar</button>
+          }
+        </div>
+
+      </div>
+    </div>
+  </div>
+}
