@@ -94,7 +94,9 @@
               <label class="form-label text-muted">Equipo Utilizado</label>
               <select class="form-select bg-dark text-light border-secondary" [(ngModel)]="uso.equipamientoId" name="equipamientoId" required>
                 <option [ngValue]="null" disabled>Seleccione un equipo...</option>
-                <option *ngFor="let eq of equipamientos" [ngValue]="eq.id">{{ eq.nombre }}</option>
+                <option *ngFor="let eq of equipamientos" [ngValue]="eq.id">
+                  {{ eq.nombre }} — [Operativo: {{ eq.horasUso }}h disponibles]
+                </option>
               </select>
             </div>
           </div>

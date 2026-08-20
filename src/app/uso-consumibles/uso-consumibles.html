@@ -94,7 +94,9 @@
               <label class="form-label text-muted">Consumible Utilizado</label>
               <select class="form-select bg-dark text-light border-secondary" [(ngModel)]="uso.consumibleId" name="consumibleId" required>
                 <option [ngValue]="null" disabled>Seleccione un consumible...</option>
-                <option *ngFor="let cons of consumibles" [ngValue]="cons.id">{{ cons.nombre }} ({{ cons.marca }})</option>
+                <option *ngFor="let cons of consumibles" [ngValue]="cons.id">
+                  {{ cons.nombre }} ({{ cons.marca }}) — [Stock: {{ cons.cantidad }} {{ cons.unidadMedida }}]
+                </option>
               </select>
             </div>
           </div>

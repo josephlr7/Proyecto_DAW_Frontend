@@ -45,7 +45,8 @@ export class UsoEquipos implements OnInit {
   cargarEquipamientos() {
     this.equipamientoService.listar().subscribe({
       next: (data) => {
-        this.equipamientos = data;
+        // Filtrar solo equipos que están OPERATIVOS y con horas disponibles > 0
+        this.equipamientos = data.filter(e => e.estado === 'OPERATIVO' && (e.horasUso ?? 0) > 0);
         this.cdr.detectChanges();
       },
       error: () => console.error('Error cargando equipamientos')

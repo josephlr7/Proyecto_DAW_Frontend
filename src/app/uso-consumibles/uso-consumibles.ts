@@ -45,7 +45,8 @@ export class UsoConsumibles implements OnInit {
   cargarConsumibles() {
     this.consumibleService.listar().subscribe({
       next: (data) => {
-        this.consumibles = data;
+        // Filtrar solo consumibles que tienen stock disponible > 0
+        this.consumibles = data.filter(c => (c.cantidad ?? 0) > 0);
         this.cdr.detectChanges();
       },
       error: () => console.error('Error cargando consumibles')
