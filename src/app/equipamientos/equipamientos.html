@@ -6,7 +6,7 @@
       <h2 class="mb-0 text-info fw-bold">⚙️ Gestión de Equipamientos</h2>
       <small class="text-muted">{{ equipos.length }} equipo(s) registrado(s)</small>
     </div>
-    @if (authService.tieneRol('ROLE_ADMIN')) {
+    @if (authService.tieneRol('ROLE_ADMIN') || authService.tieneRol('ROLE_PERSONAL')) {
       <button class="btn btn-primary px-4" (click)="abrirCrear()">➕ Nuevo Equipo</button>
     }
   </div>
@@ -64,7 +64,7 @@
                   }
                 </td>
                 <td class="text-center">
-                  @if (authService.tieneRol('ROLE_ADMIN')) {
+                  @if (authService.tieneRol('ROLE_ADMIN') || authService.tieneRol('ROLE_PERSONAL')) {
                     <button class="btn btn-sm btn-outline-info me-2" (click)="editar(equipo)">✏️ Editar</button>
                     <button class="btn btn-sm btn-outline-danger" (click)="eliminar(equipo.id!)">🗑️ Eliminar</button>
                   } @else {
